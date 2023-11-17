@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
 
 class AddRefundToTopupsTable extends Migration
@@ -11,8 +12,8 @@ class AddRefundToTopupsTable extends Migration
      */
     public function up()
     {
-        \DB::statement("ALTER TABLE topups CHANGE COLUMN status status ENUM('PENDING','SUCCESS','FAIL','PENDING_PAYMENT', 'REFUNDED') NOT NULL DEFAULT 'PENDING_PAYMENT'");
-        \DB::statement("ALTER TABLE invoices CHANGE COLUMN status status ENUM('PENDING','PAID','FAIL','CANCELLED','PROCESSING', 'REFUNDED') NOT NULL DEFAULT 'PENDING'");
+        DB::statement("ALTER TABLE topups CHANGE COLUMN status status ENUM('PENDING','SUCCESS','FAIL','PENDING_PAYMENT', 'REFUNDED') NOT NULL DEFAULT 'PENDING_PAYMENT'");
+        DB::statement("ALTER TABLE invoices CHANGE COLUMN status status ENUM('PENDING','PAID','FAIL','CANCELLED','PROCESSING', 'REFUNDED') NOT NULL DEFAULT 'PENDING'");
     }
 
     /**
@@ -22,7 +23,7 @@ class AddRefundToTopupsTable extends Migration
      */
     public function down()
     {
-        \DB::statement("ALTER TABLE topups CHANGE COLUMN status status ENUM('PENDING','SUCCESS','FAIL','PENDING_PAYMENT') NOT NULL DEFAULT 'PENDING_PAYMENT'");
-        \DB::statement("ALTER TABLE invoices CHANGE COLUMN status status ENUM('PENDING','PAID','FAIL','CANCELLED','PROCESSING') NOT NULL DEFAULT 'PENDING'");
+        DB::statement("ALTER TABLE topups CHANGE COLUMN status status ENUM('PENDING','SUCCESS','FAIL','PENDING_PAYMENT') NOT NULL DEFAULT 'PENDING_PAYMENT'");
+        DB::statement("ALTER TABLE invoices CHANGE COLUMN status status ENUM('PENDING','PAID','FAIL','CANCELLED','PROCESSING') NOT NULL DEFAULT 'PENDING'");
     }
 }

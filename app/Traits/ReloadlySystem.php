@@ -5,17 +5,16 @@ namespace App\Traits;
 use App\Models\Log;
 use App\Models\Operator;
 use Illuminate\Support\Facades\Http;
-use OTIFSolutions\CurlHandler\Curl;
 use OTIFSolutions\Laravel\Settings\Models\Setting;
 
 trait ReloadlySystem
 {
-    public function getReloadlyApiUrlAttribute()
+    public function getReloadlyApiUrlAttribute(): string
     {
         return Setting::get('reloadly_api_mode') ? 'https://topups.reloadly.com' : 'https://topups-sandbox.reloadly.com';
     }
 
-    public function getReloadlyGiftApiUrlAttribute()
+    public function getReloadlyGiftApiUrlAttribute(): string
     {
         return Setting::get('reloadly_api_mode') ? 'https://giftcards.reloadly.com' : 'https://giftcards-sandbox.reloadly.com';
     }
@@ -42,49 +41,56 @@ trait ReloadlySystem
 
     public function getCountries($iso = null)
     {
-        $url = $this['reloadly_api_url'] . '/countries';
-        $response = Curl::Make()->GET->url($url . ($iso ? '/' . $iso : ''))->header([
-            'Content-Type:application/json',
-            'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
-        ])->execute();
+        $url = $this['reloadly_api_url'] . '/countries' . ($iso ? '/' . $iso : '');
 
-        Log::create([
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . Setting::get('reloadly_api_token'),
+        ])->get($url);
+
+        Log::query()->create([
             'task' => 'GET_COUNTRIES',
             'params' => '',
-            'response' => $response,
+            'response' => $response->json(),
         ]);
 
-        return $response;
+        return $response->json();
     }
 
     public function getOperators($page = 1)
     {
-        $response = Curl::Make()->GET->url($this['reloadly_api_url'] . "/operators?page=$page&size=200&includeBundles=true&includeData=true&includePin=true&simplified=false&suggestedAmounts=true&suggestedAmountsMap=true")->header([
-            'Content-Type:application/json',
-            'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
-        ])->execute();
-        Log::create([
+        $url = $this['reloadly_api_url'] . "/operators?page=$page&size=200&includeBundles=true&includeData=true&includePin=true&simplified=false&suggestedAmounts=true&suggestedAmountsMap=true";
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . Setting::get('reloadly_api_token'),
+        ])->get($url);
+
+        Log::query()->create([
             'task' => 'GET_OPERATORS',
             'params' => '',
-            'response' => $response,
+            'response' => $response->json(),
         ]);
 
-        return $response;
+        return $response->json();
     }
 
     public function getOperatorsDiscount($page = 1)
     {
-        $response = Curl::Make()->GET->url($this['reloadly_api_url'] . "/operators/commissions?page=$page&size=200&includeBundles=true&includeData=true&includePin=true&simplified=false&suggestedAmounts=true&suggestedAmountsMap=true")->header([
-            'Content-Type:application/json',
-            'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
-        ])->execute();
-        Log::create([
+        $url = $this['reloadly_api_url'] . "/operators/commissions?page=$page&size=200&includeBundles=true&includeData=true&includePin=true&simplified=false&suggestedAmounts=true&suggestedAmountsMap=true";
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . Setting::get('reloadly_api_token'),
+        ])->get($url);
+
+        Log::query()->create([
             'task' => 'GET_OPERATORS_DISCOUNTS',
             'params' => '',
-            'response' => $response,
+            'response' => $response->json(),
         ]);
 
-        return $response;
+        return $response->json();
     }
 
     public function getBalance(): string
@@ -101,6 +107,7 @@ trait ReloadlySystem
                 Setting::set('reloadly_currency', $data['currencyCode']);
                 $this->save();
             }
+
             return isset($data['balance'], $data['currencyCode']) ? $data['balance'] . ' ' . $data['currencyCode'] : '---';
         }
 
@@ -121,52 +128,59 @@ trait ReloadlySystem
         ]);
 
         $data = $response->json();
+
         return isset($data['operatorId']) ? Operator::query()->where('rid', $data['operatorId'])->first() : null;
     }
 
     public function getPromotions($page = 1)
     {
-        $response = Curl::Make()->GET->url($this['reloadly_api_url'] . "/promotions?page=$page")->header([
-            'Content-Type:application/json',
-            'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
-        ])->execute();
-        Log::create([
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . Setting::get('reloadly_api_token'),
+        ])->get($this['reloadly_api_url'] . "/promotions?page=$page");
+
+        Log::query()->create([
             'task' => 'GET_PROMOTIONS',
             'params' => '',
-            'response' => $response,
+            'response' => $response->json(),
         ]);
 
-        return $response;
+        return $response->json();
     }
 
     public function getGiftTokenAttribute()
     {
-        $response = Curl::Make()->POST->url('https://auth.reloadly.com/oauth/token')->header([
-            'Content-Type:application/json',
-        ])->body([
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post('https://auth.reloadly.com/oauth/token', [
             'client_id' => Setting::get('reloadly_api_key'),
             'client_secret' => Setting::get('reloadly_api_secret'),
             'grant_type' => 'client_credentials',
             'audience' => $this['reloadly_gift_api_url'],
-        ])->execute();
+        ]);
 
-        return isset($response['access_token']) ? $response['access_token'] : null;
+        return $response['access_token'] ?? null;
     }
 
     public function getReloadlyGiftProducts($page = 1)
     {
-        return Curl::Make()->GET->url($this['reloadly_gift_api_url'] . "/products?page=$page&size=200")->header([
-            'Content-Type:application/json',
-            'Authorization: Bearer ' . $this['gift_token'],
-        ])->execute();
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . $this['gift_token'],
+        ])->get($this['reloadly_gift_api_url'] . '/products', [
+            'page' => $page,
+            'size' => 200,
+        ]);
+
+        return $response->json();
     }
 
     public function orderReloadlyGiftProducts($rid, $iso, $quantity, $price, $identifier, $senderName, $email)
     {
-        return Curl::Make()->POST->url($this['reloadly_gift_api_url'] . '/orders')->header([
-            'Content-Type:application/json',
-            'Authorization: Bearer ' . $this['gift_token'],
-        ])->body([
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . $this['gift_token'],
+        ])->post($this['reloadly_gift_api_url'] . '/orders', [
             'productId' => $rid,
             'countryCode' => $iso,
             'quantity' => $quantity,
@@ -174,6 +188,8 @@ trait ReloadlySystem
             'customIdentifier' => $identifier,
             'senderName' => $senderName,
             'recipientEmail' => $email,
-        ])->execute();
+        ]);
+
+        return $response->json();
     }
 }

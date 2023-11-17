@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class GiftCardTransaction extends Model
 {
     use HasFactory;
+
     protected $guarded = ['id'];
+
     protected $casts = [
         'product' => 'array',
         'response' => 'array',
@@ -16,27 +19,27 @@ class GiftCardTransaction extends Model
 
     protected $appends = ['message'];
 
-    public function invoice()
+    public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class, 'invoice_id');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function sender_currency()
+    public function sender_currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class, 'sender_currency_id');
     }
 
-    public function recipient_currency()
+    public function recipient_currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class, 'recipient_currency_id');
     }
 
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(GiftCardProduct::class, 'product_id');
     }
@@ -63,11 +66,11 @@ class GiftCardTransaction extends Model
             case 'SUCCESS':
                 return 'Transaction completed successfully.';
             case 'FAIL':
-                return isset($this['response']['message']) ? $this['response']['message'] : 'Transaction Failed. No response';
+                return $this['response']['message'] ?? 'Transaction Failed. No response';
             case 'PENDING_PAYMENT':
                 return 'Transaction is pending payment';
             case 'REFUNDED':
-                return 'Gift Card Transaction has been refunded. It failed due to Error : ' . (isset($this['response']['message']) ? $this['response']['message'] : 'Unknown');
+                return 'Gift Card Transaction has been refunded. It failed due to Error : ' . ($this['response']['message'] ?? 'Unknown');
             default:
                 return 'Error : Unknown Status found.';
         }

@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class GiftCardProduct extends Model
 {
     use HasFactory;
+
     protected $guarded = ['id'];
+
     protected $casts = [
         'logo_urls' => 'array',
         'fixed_recipient_denominations' => 'array',
@@ -20,18 +23,14 @@ class GiftCardProduct extends Model
     ];
     public $appends = ['amounts'];
 
-    public function country()
+    public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class, 'country_id');
     }
 
-    public function getAmountsAttribute()
+    public function getAmountsAttribute(): array
     {
-        if (isset($this->pivot->discount)) {
-            $discount = $this->pivot->discount;
-        } else {
-            $discount = 0;
-        }
+        $discount = $this->pivot->discount ?? 0;
         $amounts = [];
         if ($this['denomination_type'] === 'FIXED') {
             foreach ($this['fixed_denominations_map'] as $key => $denomonation) {

@@ -13,7 +13,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class System extends Model
 {
     use HasFactory;
-    use StripeSystem, PaypalSystem;
+    use StripeSystem;
+    use PaypalSystem;
 
     public static function sendEmail($to, $view, $data)
     {

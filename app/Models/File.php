@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class File extends Model
 {
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -71,17 +73,17 @@ class File extends Model
         $this->save();
     }
 
-    public function topups()
+    public function topups(): HasMany
     {
         return $this->hasMany(Topup::class);
     }
 
-    public function numbers()
+    public function numbers(): HasMany
     {
         return $this->hasMany(FileEntry::class);
     }
 
-    public function getTotalAmountAttribute()
+    public function getTotalAmountAttribute(): float
     {
         $amount = 0.0;
         foreach ($this['numbers'] as $number) {
