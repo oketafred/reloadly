@@ -22,12 +22,13 @@
         "stripe/stripe-php": "^7.62"
     },
     "require-dev": {
-        "spatie/laravel-ignition": "2.*",
+        "barryvdh/laravel-debugbar": "^3.9",
         "fakerphp/faker": "^1.9.1",
         "friendsofphp/php-cs-fixer": "^3.13",
         "mockery/mockery": "^1.4.2",
         "nunomaduro/collision": "^v7.10.0",
-        "phpunit/phpunit": "^10.4.2"
+        "phpunit/phpunit": "^10.4.2",
+        "spatie/laravel-ignition": "2.*"
     },
     "config": {
         "optimize-autoloader": true,
