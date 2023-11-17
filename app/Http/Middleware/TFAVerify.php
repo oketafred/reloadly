@@ -2,9 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Traits\GoogleAuthenticator;
 use Closure;
-use Illuminate\Routing\Route;
+use App\Traits\GoogleAuthenticator;
 
 class TFAVerify
 {
@@ -17,10 +16,10 @@ class TFAVerify
      */
     public function handle($request, Closure $next)
     {
-        if ($request->user()['2fa_mode'] === "DISABLED" ) {
+        if ($request->user()['2fa_mode'] === 'DISABLED') {
             return $next($request);
         }
-        if(
+        if (
             $request->session()->has('2fa_code') &&
             $request->session()->has('2fa_code_time') &&
             GoogleAuthenticator::Make()->verifyCode(
@@ -29,10 +28,11 @@ class TFAVerify
                 14,
                 $request->session()->get('2fa_code_time')
             )
-        )
+        ) {
             return $next($request);
+        }
 
-        return redirect('/2fa/required?return='.$request->path());
+        return redirect('/2fa/required?return=' . $request->path());
 
     }
 }

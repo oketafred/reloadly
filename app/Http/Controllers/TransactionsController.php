@@ -15,10 +15,12 @@ class TransactionsController extends Controller
     public function index()
     {
         $user = Auth::user();
-        if (!$user)
-            return response()->json(['errors' => ['error' => 'Unauthorized Access']],422);
+        if (!$user) {
+            return response()->json(['errors' => ['error' => 'Unauthorized Access']], 422);
+        }
         $topups = $user['topups'];
-        $topups->makeHidden(['user_id','file_entry_id','response']);
+        $topups->makeHidden(['user_id', 'file_entry_id', 'response']);
+
         return response()->json($topups);
     }
 
@@ -52,14 +54,18 @@ class TransactionsController extends Controller
     public function showByRef($ref)
     {
         $user = Auth::user();
-        if (!$user)
-            return response()->json(['errors' => ['error' => 'Unauthorized Access']],422);
-        $topups = $user->topups()->where('ref_no',$ref)->first();
-        if (!$topups)
-            return response()->json(['errors' => ['error' => 'Transaction Not Found.']],422);
-        $topups->makeHidden(['user_id','file_entry_id','response']);
+        if (!$user) {
+            return response()->json(['errors' => ['error' => 'Unauthorized Access']], 422);
+        }
+        $topups = $user->topups()->where('ref_no', $ref)->first();
+        if (!$topups) {
+            return response()->json(['errors' => ['error' => 'Transaction Not Found.']], 422);
+        }
+        $topups->makeHidden(['user_id', 'file_entry_id', 'response']);
+
         return response()->json($topups);
     }
+
     /**
      * Display the specified resource.
      *
@@ -69,12 +75,15 @@ class TransactionsController extends Controller
     public function showById($id)
     {
         $user = Auth::user();
-        if (!$user)
-            return response()->json(['errors' => ['error' => 'Unauthorized Access']],422);
-        $topups = $user->topups()->Where('id',$id)->first();
-        if (!$topups)
-            return response()->json(['errors' => ['error' => 'Transaction Not Found.']],422);
-        $topups->makeHidden(['user_id','file_entry_id','response']);
+        if (!$user) {
+            return response()->json(['errors' => ['error' => 'Unauthorized Access']], 422);
+        }
+        $topups = $user->topups()->Where('id', $id)->first();
+        if (!$topups) {
+            return response()->json(['errors' => ['error' => 'Transaction Not Found.']], 422);
+        }
+        $topups->makeHidden(['user_id', 'file_entry_id', 'response']);
+
         return response()->json($topups);
     }
 

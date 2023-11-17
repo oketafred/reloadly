@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateGiftCardTransactionsTable extends Migration
 {
@@ -31,9 +31,9 @@ class CreateGiftCardTransactionsTable extends Migration
             $table->double('recipient_amount');
             $table->string('email');
             $table->string('reference');
-            $table->string('transaction_id')->nullable()->default(NULL);
-            $table->enum('status',['PENDING_PAYMENT','PENDING','SUCCESS','FAIL'])->default('PENDING_PAYMENT');
-            $table->json('response')->nullable()->default(NULL);
+            $table->string('transaction_id')->nullable()->default(null);
+            $table->enum('status', ['PENDING_PAYMENT', 'PENDING', 'SUCCESS', 'FAIL'])->default('PENDING_PAYMENT');
+            $table->json('response')->nullable()->default(null);
             $table->timestamps();
         });
     }

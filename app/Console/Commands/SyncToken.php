@@ -30,23 +30,24 @@ class SyncToken extends Command
      */
     public function handle()
     {
-        $this->line("");
-        $this->line("****************************************************************");
-        $this->info("Started Sync of Token with Reloadly Platform");
-        $this->line("****************************************************************");
-        try{
+        $this->line('');
+        $this->line('****************************************************************');
+        $this->info('Started Sync of Token with Reloadly Platform');
+        $this->line('****************************************************************');
+        try {
             $token = User::admin()->getToken();
             if ($token !== null) {
                 Setting::set('reloadly_api_token', $token, 'STRING');
             }
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
 
-        $this->line("****************************************************************");
-        $this->info("Sync Complete !!! ");
-        $this->line("****************************************************************");
-        $this->line("");
+        $this->line('****************************************************************');
+        $this->info('Sync Complete !!! ');
+        $this->line('****************************************************************');
+        $this->line('');
+
         return 0;
     }
 }

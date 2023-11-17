@@ -10,18 +10,19 @@ class IpRestrictionController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
      */
     public function index(Request $request)
     {
         $user = Auth::user();
-        if (!$user)
-            return response()->json(['errors' => ['error' => 'Authentication Failed']],422);
+        if (!$user) {
+            return response()->json(['errors' => ['error' => 'Authentication Failed']], 422);
+        }
+
         return view('dashboard.ips.home', [
             'page' => [
-                'type' => 'dashboard'
+                'type' => 'dashboard',
             ],
-            'ips' => $user['ips']
+            'ips' => $user['ips'],
         ]);
     }
 
@@ -44,13 +45,14 @@ class IpRestrictionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ip' => 'required'
+            'ip' => 'required',
         ]);
         $user = Auth::user();
-        if (!$user)
-            return response()->json(['errors' => ['error' => 'Authentication Failed']],422);
+        if (!$user) {
+            return response()->json(['errors' => ['error' => 'Authentication Failed']], 422);
+        }
         $ip = $user->ips()->find($request['id']);
-        if ($ip === null){
+        if ($ip === null) {
             $ip = new IpAddress();
             $ip['user_id'] = $user['id'];
         }
@@ -59,7 +61,7 @@ class IpRestrictionController extends Controller
 
         return response()->json([
             'location' => '/ip_restriction',
-            'message' => 'User Saved. Redirecting Now'
+            'message' => 'User Saved. Redirecting Now',
         ]);
     }
 
@@ -71,8 +73,8 @@ class IpRestrictionController extends Controller
      */
     public function show($id)
     {
-        return view('dashboard.ips.modal',[
-            'item' => IpAddress::find($id)
+        return view('dashboard.ips.modal', [
+            'item' => IpAddress::find($id),
         ]);
     }
 
@@ -108,24 +110,29 @@ class IpRestrictionController extends Controller
     public function destroy($id)
     {
         $user = Auth::user();
-        if (!$user)
-            return response()->json(['errors' => ['error' => 'Authentication Failed']],422);
+        if (!$user) {
+            return response()->json(['errors' => ['error' => 'Authentication Failed']], 422);
+        }
 
         $ip = $user->ips()->find($id);
-        if (!$ip)
-            return response()->json(['errors' => [ 'error' => 'IP not found.']],422);
+        if (!$ip) {
+            return response()->json(['errors' => ['error' => 'IP not found.']], 422);
+        }
         $ip->delete();
     }
 
-    public function changeStatus(Request $request){
+    public function changeStatus(Request $request)
+    {
         $user = Auth::user();
-        if (!$user)
-            return response()->json(['errors' => ['error' => 'Authentication Failed']],422);
-        $user['ip_restriction'] = $user['ip_restriction']==='ENABLED'?'DISABLED':'ENABLED';
+        if (!$user) {
+            return response()->json(['errors' => ['error' => 'Authentication Failed']], 422);
+        }
+        $user['ip_restriction'] = $user['ip_restriction'] === 'ENABLED' ? 'DISABLED' : 'ENABLED';
         $user->save();
+
         return response()->json([
             'message' => 'Status Updated.',
-            'location' => '/ip_restriction'
+            'location' => '/ip_restriction',
         ]);
     }
 }

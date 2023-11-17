@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use OTIFSolutions\CurlHandler\Curl;
+use Illuminate\Database\Eloquent\Model;
 use OTIFSolutions\Laravel\Settings\Models\Setting;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Topup extends Model
 {
@@ -14,92 +14,98 @@ class Topup extends Model
     protected $guarded = ['id'];
     protected $casts = [
         'response' => 'array',
-        'pin' => 'array'
+        'pin' => 'array',
     ];
     protected $appends = ['message'];
 
-    public function operator(){
+    public function operator()
+    {
         return $this->belongsTo(Operator::class);
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function invoice(){
+    public function invoice()
+    {
         return $this->belongsTo(Invoice::class);
     }
 
-    public function file_entry(){
+    public function file_entry()
+    {
         return $this->belongsTo(FileEntry::class);
     }
 
-    public function getMessageAttribute(){
-        switch ($this['status']){
-            case "PENDING":
-                return "Transaction is paid. But its pending topup. Please wait a few minuites for the status to update.";
-            case "SUCCESS":
-                return "Transaction completed successfully.";
-            case "FAIL":
-                return isset($this['response']['message'])?$this['response']['message']: "Transaction Failed. No response";
-            case "PENDING_PAYMENT":
-                return "Transaction is pending payment";
-            case "REFUNDED":
-                return "Topup has been refunded. It failed due to Error : ".(isset($this['response']['message'])?$this['response']['message']: "Unknown");
+    public function getMessageAttribute()
+    {
+        switch ($this['status']) {
+            case 'PENDING':
+                return 'Transaction is paid. But its pending topup. Please wait a few minuites for the status to update.';
+            case 'SUCCESS':
+                return 'Transaction completed successfully.';
+            case 'FAIL':
+                return isset($this['response']['message']) ? $this['response']['message'] : 'Transaction Failed. No response';
+            case 'PENDING_PAYMENT':
+                return 'Transaction is pending payment';
+            case 'REFUNDED':
+                return 'Topup has been refunded. It failed due to Error : ' . (isset($this['response']['message']) ? $this['response']['message'] : 'Unknown');
             default:
-                return "Error : Unknown Status found.";
+                return 'Error : Unknown Status found.';
         }
     }
 
-    public function sendTopup($sendResponse=false)
+    public function sendTopup($sendResponse = false)
     {
         if (isset($this['operator']) && isset($this['operator']['country'])) {
             $system = User::admin();
 
-            if ($this['status'] === 'PENDING'){
-                $response = Curl::Make()->POST->url($system['reloadly_api_url'] . "/topups")->header([
-                    "Content-Type:application/json",
-                    "Authorization: Bearer " . Setting::get('reloadly_api_token')
+            if ($this['status'] === 'PENDING') {
+                $response = Curl::Make()->POST->url($system['reloadly_api_url'] . '/topups')->header([
+                    'Content-Type:application/json',
+                    'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
                 ])->body([
                     'recipientPhone' => [
                         'countryCode' => $this['operator']['country']['iso'],
-                        'number' => $this['number']
+                        'number' => $this['number'],
                     ],
                     'operatorId' => $this['operator']['rid'],
                     'amount' => $this['is_local'] ? $this['topup'] : $this['topup'] / $this['operator']['fx_rate'],
-                    'useLocalAmount' => $this['is_local'] ? "true" : "false"
+                    'useLocalAmount' => $this['is_local'] ? 'true' : 'false',
                 ])->execute();
-            }else if (isset($this['response']['transactionId'])){
-                $response = Curl::Make()->GET->url($system['reloadly_api_url']. "/topups/reports/transactions/". $this['response']['transactionId'])->header([
-                    "Content-Type:application/json",
-                    "Authorization: Bearer " . Setting::get('reloadly_api_token')
+            } elseif (isset($this['response']['transactionId'])) {
+                $response = Curl::Make()->GET->url($system['reloadly_api_url'] . '/topups/reports/transactions/' . $this['response']['transactionId'])->header([
+                    'Content-Type:application/json',
+                    'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
                 ])->execute();
-            }else{
+            } else {
                 return null;
             }
 
             Log::create([
                 'task' => 'SEND_TOPUP',
                 'params' => 'TOPUP_ID:' . $this['id'] . ' PHONE:' . $this['number'] . ' TOPUP:' . $this['topup'],
-                'response' => json_encode($response)
+                'response' => json_encode($response),
             ]);
             $this['response'] = $response;
             if (isset($this['response']['transactionId']) && $this['response']['transactionId'] != null && $this['response']['transactionId'] != '') {
-                if (isset($this['response']['status'])){
-                    switch ($this['response']['status']){
-                        case "SUCCESSFUL":
+                if (isset($this['response']['status'])) {
+                    switch ($this['response']['status']) {
+                        case 'SUCCESSFUL':
                             $this['status'] = 'SUCCESS';
-                            if (isset($this['response']['pinDetail']))
+                            if (isset($this['response']['pinDetail'])) {
                                 $this['pin'] = $this['response']['pinDetail'];
-                        break;
-                        case "PROCESSING":
+                            }
+                            break;
+                        case 'PROCESSING':
                             $this['status'] = 'PROCESSING';
-                        break;
-                        case "REFUNDED":
+                            break;
+                        case 'REFUNDED':
                             $this['status'] = 'FAIL';
-                        break;
+                            break;
                     }
-                }else{
+                } else {
                     $this['status'] = 'FAIL';
                 }
             } else {
@@ -112,7 +118,8 @@ class Topup extends Model
         }
     }
 
-    public function discount_transaction(){
-        return $this->hasOne(AccountTransaction::class,'topup_id');
+    public function discount_transaction()
+    {
+        return $this->hasOne(AccountTransaction::class, 'topup_id');
     }
 }

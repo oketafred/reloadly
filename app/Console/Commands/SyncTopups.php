@@ -30,39 +30,40 @@ class SyncTopups extends Command
      */
     public function handle()
     {
-        $this->line("");
-        $this->line("****************************************************************");
-        $this->info("Started Sync of Topups");
-        $this->line("****************************************************************");
-        $this->line("Getting Topups that are PENDING");
+        $this->line('');
+        $this->line('****************************************************************');
+        $this->info('Started Sync of Topups');
+        $this->line('****************************************************************');
+        $this->line('Getting Topups that are PENDING');
         try {
             Topup::query()
-                ->whereIn('status',['PENDING','PROCESSING'])
-                ->chunk(100, function($topups) {
-                    $this->info(count($topups)." Topups Found.");
-                    foreach ($topups as $topup){
+                ->whereIn('status', ['PENDING', 'PROCESSING'])
+                ->chunk(100, function ($topups) {
+                    $this->info(count($topups) . ' Topups Found.');
+                    foreach ($topups as $topup) {
                         if (Carbon::now()->addMinutes(10) < new Carbon($topup['created_at'])) {
                             continue;
                         }
-                        if($topup['scheduled_datetime'] && isset($topup['timezone'])){
+                        if ($topup['scheduled_datetime'] && isset($topup['timezone'])) {
                             $now = Carbon::now();
-                            $datetime = Carbon::parse($topup['scheduled_datetime'],$topup['timezone']['utc'][0]);
+                            $datetime = Carbon::parse($topup['scheduled_datetime'], $topup['timezone']['utc'][0]);
                             if ($datetime <= $now) {
                                 $topup->sendTopup();
                             }
-                        }else {
+                        } else {
                             $topup->sendTopup();
                         }
                     }
-                    $this->info(count($topups)." Topups Synced !!!");
+                    $this->info(count($topups) . ' Topups Synced !!!');
                 });
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
-        $this->line("****************************************************************");
-        $this->info("All Topups Synced !!! ");
-        $this->line("****************************************************************");
-        $this->line("");
+        $this->line('****************************************************************');
+        $this->info('All Topups Synced !!! ');
+        $this->line('****************************************************************');
+        $this->line('');
+
         return 0;
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Invoice extends Model
 {
@@ -13,21 +13,26 @@ class Invoice extends Model
 
     protected $casts = [
         'payment_intent_response' => 'array',
-        'paypal_response' => 'array'
+        'paypal_response' => 'array',
     ];
 
-    public function topups(){
+    public function topups()
+    {
         return $this->hasMany(Topup::class);
     }
 
-    public function topup(){
+    public function topup()
+    {
         return $this->hasOne(Topup::class, 'invoice_id');
     }
-    public function gift_card(){
-        return $this->hasOne(GiftCardTransaction::class,'invoice_id');
+
+    public function gift_card()
+    {
+        return $this->hasOne(GiftCardTransaction::class, 'invoice_id');
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
 use OTIFSolutions\Laravel\Settings\Models\Setting;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Operator extends Model
 {
@@ -22,18 +22,21 @@ class Operator extends Model
         'suggested_amounts_map' => 'array',
         'local_fixed_amounts' => 'array',
         'local_fixed_amounts_descriptions' => 'array',
-        'geographical_recharge_plans' => 'array'
+        'geographical_recharge_plans' => 'array',
     ];
 
-    public function country(){
+    public function country()
+    {
         return $this->belongsTo(Country::class);
     }
 
-    public  function discount(){
+    public function discount()
+    {
         return $this->hasOne(Discount::class);
     }
 
-    public function topups(){
+    public function topups()
+    {
         return $this->hasMany(Topup::class);
     }
 
@@ -41,50 +44,57 @@ class Operator extends Model
         return $this->hasMany('App\MobileNumber');
     }*/
 
-    public function promotions(){
+    public function promotions()
+    {
         return $this->hasMany(Promotion::class);
     }
 
-    public function resellers(){
-        return $this->belongsToMany(User::class,'reseller_rates','operator_id','user_id')->withPivot(['international_discount', 'local_discount']);
+    public function resellers()
+    {
+        return $this->belongsToMany(User::class, 'reseller_rates', 'operator_id', 'user_id')->withPivot(['international_discount', 'local_discount']);
     }
 
-    public function getFxRateAttribute($fx){
+    public function getFxRateAttribute($fx)
+    {
         $user = Auth::user();
-        if(isset($user) && ($user['user_role']['name'] == 'RESELLER'))
-            return  $fx;
-        elseif(Setting::get('customer_rate'))
-            return ($fx * (1 - ( Setting::get('customer_rate') / 100)));
+        if (isset($user) && ($user['user_role']['name'] == 'RESELLER')) {
+            return $fx;
+        } elseif (Setting::get('customer_rate')) {
+            return $fx * (1 - (Setting::get('customer_rate') / 100));
+        }
 
         return $fx;
     }
 
-    public function getFxForAmount($amount){
+    public function getFxForAmount($amount)
+    {
         $system = User::admin();
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, $system['reloadly_api_url']."/operators/fx-rate");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_HEADER, FALSE);
-        curl_setopt($ch, CURLOPT_POST, TRUE);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            "Content-Type:application/json",
-            "Authorization: Bearer ".Setting::get('reloadly_api_token')
-        ));
+        curl_setopt($ch, CURLOPT_URL, $system['reloadly_api_url'] . '/operators/fx-rate');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type:application/json',
+            'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
+        ]);
 
-        curl_setopt($ch,CURLOPT_POSTFIELDS,json_encode([
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
             'operatorId' => $this['rid'],
             'currencyCode' => Setting::get('reloadly_currency'),
-            'amount' => $amount
+            'amount' => $amount,
         ]));
 
         $response = curl_exec($ch);
         curl_close($ch);
         $response = json_decode($response);
-        return isset($response->fxRate)?$response->fxRate:-1;
+
+        return isset($response->fxRate) ? $response->fxRate : -1;
     }
 
-    public function getSelectAmountsAttribute(){
-        return $this['denomination_type'] === 'RANGE'?$this['suggested_amounts']:$this['fixed_amounts'];
+    public function getSelectAmountsAttribute()
+    {
+        return $this['denomination_type'] === 'RANGE' ? $this['suggested_amounts'] : $this['fixed_amounts'];
     }
 }

@@ -3,15 +3,15 @@
 namespace App\Console;
 
 use App\Console\Commands\SyncToken;
-use App\Console\Commands\SyncStripe;
 use App\Console\Commands\SyncPaypal;
+use App\Console\Commands\SyncStripe;
 use App\Console\Commands\SyncTopups;
 use App\Console\Commands\ProcessFiles;
-use App\Console\Commands\SyncOperators;
 use App\Console\Commands\SyncCountries;
 use App\Console\Commands\SyncDiscounts;
-use App\Console\Commands\SyncPromotions;
+use App\Console\Commands\SyncOperators;
 use App\Console\Commands\ProcessRefunds;
+use App\Console\Commands\SyncPromotions;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Console\Commands\SyncTopupDIscounts;
 use App\Console\Commands\SyncGiftCardProducts;
@@ -40,7 +40,7 @@ class Kernel extends ConsoleKernel
         (SyncStripe::class),
         (SyncPaypal::class),
         (ProcessRefunds::class),
-        (ReCalculateAccountBalances::class)
+        (ReCalculateAccountBalances::class),
     ];
 
     /**
@@ -90,7 +90,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

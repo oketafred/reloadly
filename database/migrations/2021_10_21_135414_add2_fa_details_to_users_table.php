@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class Add2FaDetailsToUsersTable extends Migration
 {
@@ -14,7 +14,7 @@ class Add2FaDetailsToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('2fa_mode',['ENABLED','DISABLED'])->default('DISABLED')->after('password');
+            $table->enum('2fa_mode', ['ENABLED', 'DISABLED'])->default('DISABLED')->after('password');
             $table->string('2fa_secret')->nullable()->after('2fa_mode');
             $table->dateTime('2fa_requested_at')->nullable()->after('2fa_secret');
         });
@@ -28,7 +28,7 @@ class Add2FaDetailsToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['2fa_mode','2fa_secret', '2fa_requested_at']);
+            $table->dropColumn(['2fa_mode', '2fa_secret', '2fa_requested_at']);
         });
     }
 }

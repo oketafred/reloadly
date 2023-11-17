@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateAccountTransactionsTable extends Migration
 {
@@ -22,7 +22,7 @@ class CreateAccountTransactionsTable extends Migration
             $table->double('amount');
             $table->string('currency');
             $table->double('ending_balance');
-            $table->enum('type',['CREDIT','DEBIT']);
+            $table->enum('type', ['CREDIT', 'DEBIT']);
             $table->longText('description');
             $table->json('response')->nullable()->default(null);
             $table->timestamps();

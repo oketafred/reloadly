@@ -31,21 +31,21 @@ class SyncPromotions extends Command
      */
     public function handle()
     {
-        $this->line("");
-        $this->line("****************************************************************");
-        $this->info("Started Sync of Promotions with Reloadly Platform");
-        $this->line("****************************************************************");
-        $this->line("Removing all current promotions.");
+        $this->line('');
+        $this->line('****************************************************************');
+        $this->info('Started Sync of Promotions with Reloadly Platform');
+        $this->line('****************************************************************');
+        $this->line('Removing all current promotions.');
         Promotion::query()->truncate();
-        $this->info("All Promotions Removed.");
-        $page=1;
-        try{
+        $this->info('All Promotions Removed.');
+        $page = 1;
+        try {
             do {
-                $this->line("Fetching Promotions Page : ".$page);
+                $this->line('Fetching Promotions Page : ' . $page);
                 $response = User::admin()->getPromotions($page);
-                $this->info("Fetch Success !!!");
+                $this->info('Fetch Success !!!');
                 $page++;
-                $this->line("Syncing with Database");
+                $this->line('Syncing with Database');
                 foreach ($response['content'] as $promotion) {
                     if (isset($promotion['promotionId'])) {
                         Promotion::query()->updateOrCreate(
@@ -59,20 +59,21 @@ class SyncPromotions extends Command
                                 'start_date' => $promotion['startDate'],
                                 'end_date' => $promotion['endDate'],
                                 'denominations' => $promotion['denominations'],
-                                'localDenominations' => $promotion['localDenominations']
+                                'localDenominations' => $promotion['localDenominations'],
                             ]
                         );
                     }
                 }
-                $this->info("Sync Completed For ".count($response['content'])." Promotions");
+                $this->info('Sync Completed For ' . count($response['content']) . ' Promotions');
             } while ($response['totalPages'] >= $page);
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
-        $this->line("****************************************************************");
-        $this->info("All Promotions Synced !!! ");
-        $this->line("****************************************************************");
-        $this->line("");
+        $this->line('****************************************************************');
+        $this->info('All Promotions Synced !!! ');
+        $this->line('****************************************************************');
+        $this->line('');
+
         return 0;
     }
 }
