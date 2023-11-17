@@ -12,12 +12,12 @@ class Promotion extends Model
 
     protected $guarded = ['id'];
 
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'deleted_at',
-        'end_date',
-        'start_date',
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+        'end_date' => 'datetime',
+        'start_date' => 'datetime',
     ];
 
     public function operator(): BelongsTo

@@ -11,10 +11,9 @@
         "php": "^7.3|^7.4|^8.0|^8.1",
         "ext-curl": "*",
         "ext-json": "*",
-        "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.8",
-        "laravel/framework": "^v9.52.16",
-        "laravel/passport": "^10.3",
+        "laravel/framework": "^10.0",
+        "laravel/passport": "^v11.10.0",
         "laravel/tinker": "^2.5",
         "otifsolutions/aclmenu": "^1.0",
         "otifsolutions/laravel-forcessl": "^1.0",
@@ -23,12 +22,12 @@
         "stripe/stripe-php": "^7.62"
     },
     "require-dev": {
-        "spatie/laravel-ignition": "^1.0",
+        "spatie/laravel-ignition": "2.*",
         "fakerphp/faker": "^1.9.1",
         "friendsofphp/php-cs-fixer": "^3.13",
         "mockery/mockery": "^1.4.2",
-        "nunomaduro/collision": "^v6.1.0",
-        "phpunit/phpunit": "^9.3.3"
+        "nunomaduro/collision": "^v7.10.0",
+        "phpunit/phpunit": "^10.4.2"
     },
     "config": {
         "optimize-autoloader": true,
@@ -52,7 +51,7 @@
             "Tests\\": "tests/"
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true,
     "scripts": {
         "post-autoload-dump": [
