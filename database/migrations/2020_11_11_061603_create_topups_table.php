@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateTopupsTable extends Migration
 {
@@ -27,8 +27,8 @@ class CreateTopupsTable extends Migration
             $table->double('number');
             $table->string('sender_currency')->nullable();
             $table->string('receiver_currency')->nullable();
-            $table->enum('status',['PENDING','SUCCESS','FAIL','PENDING_PAYMENT'])->default('PENDING_PAYMENT');
-            $table->enum('type',['USER_INITIATED','SYSTEM_INITIATED'])->default('USER_INITIATED');
+            $table->enum('status', ['PENDING', 'SUCCESS', 'FAIL', 'PENDING_PAYMENT'])->default('PENDING_PAYMENT');
+            $table->enum('type', ['USER_INITIATED', 'SYSTEM_INITIATED'])->default('USER_INITIATED');
             $table->date('subscription_date')->nullable();
             $table->json('system_initiated_logs')->nullable();
             $table->json('response')->nullable();

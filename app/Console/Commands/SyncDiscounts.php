@@ -31,19 +31,19 @@ class SyncDiscounts extends Command
      */
     public function handle()
     {
-        $this->line("");
-        $this->line("****************************************************************");
-        $this->info("Started Sync of Operators Discount with Reloadly Platform");
-        $this->line("****************************************************************");
-        $page=1;
+        $this->line('');
+        $this->line('****************************************************************');
+        $this->info('Started Sync of Operators Discount with Reloadly Platform');
+        $this->line('****************************************************************');
+        $page = 1;
         do {
-            $this->line("Fetching Discounts Page : ".$page);
+            $this->line('Fetching Discounts Page : ' . $page);
             $response = User::admin()->getOperatorsDiscount($page);
-            $this->info("Fetch Success !!!");
+            $this->info('Fetch Success !!!');
             $page++;
-            $this->line("Syncing with Database");
+            $this->line('Syncing with Database');
             foreach ($response['content'] as $discount) {
-                try{
+                try {
                     if (isset($discount['operator']['operatorId'])) {
                         $operator = Operator::query()
                             ->where('rid', $discount['operator']['operatorId'])
@@ -56,20 +56,21 @@ class SyncDiscounts extends Command
                                 'percentage' => $discount['percentage'],
                                 'international_percentage' => $discount['internationalPercentage'],
                                 'local_percentage' => $discount['localPercentage'],
-                                'updated_at' => $discount['updatedAt']
+                                'updated_at' => $discount['updatedAt'],
                             ]
                         );
                     }
-                }catch (Exception $exception){
-                    $this->error('Operator not found '.$discount['operator']['name']);
+                } catch (Exception $exception) {
+                    $this->error('Operator not found ' . $discount['operator']['name']);
                 }
             }
-            $this->info("Sync Completed For ".count($response['content'])." Discounts");
+            $this->info('Sync Completed For ' . count($response['content']) . ' Discounts');
         } while ($response['totalPages'] >= $page);
-        $this->line("****************************************************************");
-        $this->info("All Discounts Synced !!! ");
-        $this->line("****************************************************************");
-        $this->line("");
+        $this->line('****************************************************************');
+        $this->info('All Discounts Synced !!! ');
+        $this->line('****************************************************************');
+        $this->line('');
+
         return 0;
     }
 }

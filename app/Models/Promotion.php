@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Promotion extends Model
 {
@@ -13,7 +13,8 @@ class Promotion extends Model
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at', 'end_date', 'start_date'];
 
-    public function operator(){
+    public function operator()
+    {
         return $this->belongsTo(Operator::class);
     }
 }

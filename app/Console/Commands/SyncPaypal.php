@@ -29,18 +29,18 @@ class SyncPaypal extends Command
      */
     public function handle()
     {
-        $this->line("");
-        $this->line("****************************************************************");
-        $this->info("Started Sync of Invoices with Paypal");
-        $this->line("****************************************************************");
-        $this->line("Searching Database for PENDING/PROCESSING Invoices");
+        $this->line('');
+        $this->line('****************************************************************');
+        $this->info('Started Sync of Invoices with Paypal');
+        $this->line('****************************************************************');
+        $this->line('Searching Database for PENDING/PROCESSING Invoices');
         $invoices = Invoice::query()
-            ->where('status','PENDING')
-            ->orWhere('status','PROCESSING')
+            ->where('status', 'PENDING')
+            ->orWhere('status', 'PROCESSING')
             ->get();
-        $this->info(count($invoices)." Invoice(s) Found.");
+        $this->info(count($invoices) . ' Invoice(s) Found.');
 
-        $this->line("Syncing with Paypal.");
+        $this->line('Syncing with Paypal.');
         foreach ($invoices as $invoice) {
             try {
                 $this->info('Processing Invoice : ' . $invoice['id']);
@@ -49,12 +49,13 @@ class SyncPaypal extends Command
                 $this->error($ex->getMessage());
             }
         }
-        $this->info("Sync Completed.");
+        $this->info('Sync Completed.');
 
-        $this->line("****************************************************************");
-        $this->info("All Invoices Synced !!! ");
-        $this->line("****************************************************************");
-        $this->line("");
+        $this->line('****************************************************************');
+        $this->info('All Invoices Synced !!! ');
+        $this->line('****************************************************************');
+        $this->line('');
+
         return 0;
     }
 }

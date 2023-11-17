@@ -29,39 +29,40 @@ class SyncGiftTransactions extends Command
      */
     public function handle()
     {
-        $this->line("");
-        $this->line("****************************************************************");
-        $this->info("Started Sync of Money Transfers");
-        $this->line("****************************************************************");
-        $this->line("Syncing with PAID invoices");
-        try{
+        $this->line('');
+        $this->line('****************************************************************');
+        $this->info('Started Sync of Money Transfers');
+        $this->line('****************************************************************');
+        $this->line('Syncing with PAID invoices');
+        try {
             $reloadlyGiftCardTransactions = GiftCardTransaction::query()
                 ->where('status', 'PENDING_PAYMENT')
                 ->get();
-            $this->info(count($reloadlyGiftCardTransactions)." Reloadly Gift Transactions Found");
+            $this->info(count($reloadlyGiftCardTransactions) . ' Reloadly Gift Transactions Found');
             foreach ($reloadlyGiftCardTransactions as $transaction) {
                 if ($transaction['invoice']['status'] === 'PAID') {
                     $transaction['status'] = 'PENDING';
                     $transaction->save();
                 }
             }
-            $this->line("Getting Reloadly Gift Card Transactions that are PENDING");
+            $this->line('Getting Reloadly Gift Card Transactions that are PENDING');
             GiftCardTransaction::query()
                 ->where('status', 'PENDING')
                 ->chunk(100, function ($giftTransactions) {
-                    $this->info(count($giftTransactions)." Reloadly Gift Transactions Found.");
+                    $this->info(count($giftTransactions) . ' Reloadly Gift Transactions Found.');
                     foreach ($giftTransactions as $reloadlyGiftCardTransaction) {
                         $reloadlyGiftCardTransaction->sendTransaction();
                     }
-                    $this->info(count($giftTransactions)." Transactions Synced !!!");
+                    $this->info(count($giftTransactions) . ' Transactions Synced !!!');
                 });
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
-        $this->line("****************************************************************");
-        $this->info("All Reloadly Gift Transactions Synced !!! ");
-        $this->line("****************************************************************");
-        $this->line("");
+        $this->line('****************************************************************');
+        $this->info('All Reloadly Gift Transactions Synced !!! ');
+        $this->line('****************************************************************');
+        $this->line('');
+
         return 0;
     }
 }

@@ -3,12 +3,11 @@
 namespace App\Models;
 
 use App\Traits\ReloadlySystem;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use OTIFSolutions\ACLMenu\Traits\ACLUserTrait;
-use Laravel\Passport\HasApiTokens;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
@@ -46,52 +45,65 @@ class User extends Authenticatable
         'stripe_response' => 'array',
     ];
 
-    public static function admin(){
+    public static function admin()
+    {
         return self::first();
     }
 
-    public function invoices(){
+    public function invoices()
+    {
         return $this->hasMany(Invoice::class);
     }
 
-    public function stripe_payment_methods(){
+    public function stripe_payment_methods()
+    {
         return $this->hasMany(StripePaymentMethod::class);
     }
 
-    public function default_stripe_payment_method(){
-        return $this->belongsTo(StripePaymentMethod::class,'stripe_payment_method_id','id');
+    public function default_stripe_payment_method()
+    {
+        return $this->belongsTo(StripePaymentMethod::class, 'stripe_payment_method_id', 'id');
     }
 
-    public function account_transactions(){
-        return $this->hasMany(AccountTransaction::class)->orderBy('id','DESC');
+    public function account_transactions()
+    {
+        return $this->hasMany(AccountTransaction::class)->orderBy('id', 'DESC');
     }
 
-    public function getBalanceValueAttribute(){
-        $balanceItem = $this->account_transactions()->orderBy('id','DESC')->first();
-        return $balanceItem? $balanceItem['ending_balance'] : 0;
+    public function getBalanceValueAttribute()
+    {
+        $balanceItem = $this->account_transactions()->orderBy('id', 'DESC')->first();
+
+        return $balanceItem ? $balanceItem['ending_balance'] : 0;
     }
 
-    public function topups(){
+    public function topups()
+    {
         return $this->hasMany(Topup::class);
     }
 
-    public function files(){
+    public function files()
+    {
         return $this->hasMany(File::class);
     }
 
-    public function operators(){
-        return $this->belongsToMany(Operator::class,'reseller_rates','user_id','operator_id')->withPivot(['international_discount', 'local_discount']);
-    }
-    public function api_operators(){
-        return $this->belongsToMany(Operator::class,'reseller_rates','user_id','operator_id')->as('rates')->withPivot(['international_discount', 'local_discount']);
+    public function operators()
+    {
+        return $this->belongsToMany(Operator::class, 'reseller_rates', 'user_id', 'operator_id')->withPivot(['international_discount', 'local_discount']);
     }
 
-    public function gift_cards(){
-        return $this->belongsToMany(GiftCardProduct::class,'reseller_gift_card_rates','user_id','gift_card_product_id')->withPivot(['discount']);
+    public function api_operators()
+    {
+        return $this->belongsToMany(Operator::class, 'reseller_rates', 'user_id', 'operator_id')->as('rates')->withPivot(['international_discount', 'local_discount']);
     }
 
-    public function ips(){
-        return $this->hasMany(IpAddress::class,'user_id');
+    public function gift_cards()
+    {
+        return $this->belongsToMany(GiftCardProduct::class, 'reseller_gift_card_rates', 'user_id', 'gift_card_product_id')->withPivot(['discount']);
     }
 
+    public function ips()
+    {
+        return $this->hasMany(IpAddress::class, 'user_id');
+    }
 }

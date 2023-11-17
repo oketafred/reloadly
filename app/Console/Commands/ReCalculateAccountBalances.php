@@ -29,7 +29,7 @@ class ReCalculateAccountBalances extends Command
      */
     public function handle()
     {
-        try{
+        try {
             $users = User::query()
                 ->where('user_role_id', 2)
                 ->with('account_transactions')
@@ -38,7 +38,7 @@ class ReCalculateAccountBalances extends Command
                 $transactions = $user['account_transactions']->sortBy('id');
                 $balance = 0;
                 foreach ($transactions as $transaction) {
-                    if ($transaction['type'] === "CREDIT") {
+                    if ($transaction['type'] === 'CREDIT') {
                         $balance += $transaction['amount'];
                     } else {
                         $balance -= $transaction['amount'];
@@ -49,10 +49,11 @@ class ReCalculateAccountBalances extends Command
                     }
                 }
             });
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
         $this->line(' ');
+
         return 0;
     }
 }

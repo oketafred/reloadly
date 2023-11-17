@@ -31,27 +31,27 @@ class ProcessRefunds extends Command
      */
     public function handle()
     {
-        $this->line("");
-        $this->line("****************************************************************");
-        $this->info("Started Sync of Countries with Reloadly Platform");
-        $this->line("****************************************************************");
-        try{
+        $this->line('');
+        $this->line('****************************************************************');
+        $this->info('Started Sync of Countries with Reloadly Platform');
+        $this->line('****************************************************************');
+        try {
             $topups = Topup::query()
                 ->where('status', 'FAIL')
                 ->with('invoice', 'user')
                 ->get();
             foreach ($topups as $topup) {
                 switch ($topup['invoice']['payment_method']) {
-                    case "BALANCE":
+                    case 'BALANCE':
                         $accountTransaction = AccountTransaction::query()->updateOrCreate([
                             'invoice_id' => $topup['invoice']['id'],
                             'user_id' => $topup['user_id'],
                             'amount' => $topup['invoice']['amount'],
                             'currency' => $topup['invoice']['currency_code'],
                             'type' => 'CREDIT',
-                            'description' => 'Invoice Refunded. Invoice: '.$topup['invoice']['id']
+                            'description' => 'Invoice Refunded. Invoice: ' . $topup['invoice']['id'],
                         ], [
-                            'ending_balance' => $topup['user']['balance_value'] + $topup['invoice']['amount']
+                            'ending_balance' => $topup['user']['balance_value'] + $topup['invoice']['amount'],
                         ]);
                         if ($accountTransaction) {
                             $topup['status'] = 'REFUNDED';
@@ -60,7 +60,7 @@ class ProcessRefunds extends Command
                             $topup['invoice']->save();
                         }
                         break;
-                    case "STRIPE":
+                    case 'STRIPE':
                         if (StripeSystem::refundInvoice($topup['invoice'])) {
                             $topup['status'] = 'REFUNDED';
                             $topup->save();
@@ -68,7 +68,7 @@ class ProcessRefunds extends Command
                             $topup['invoice']->save();
                         }
                         break;
-                    case "PAYPAL":
+                    case 'PAYPAL':
                         if (PaypalSystem::refundPaypalOrder($topup['invoice'])) {
                             $topup['status'] = 'REFUNDED';
                             $topup->save();
@@ -80,14 +80,15 @@ class ProcessRefunds extends Command
                         break;
                 }
             }
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             $this->error($exception->getMessage());
         }
 
-        $this->line("****************************************************************");
-        $this->info("Sync Complete !!! ".count($topups)." Topups Refunded.");
-        $this->line("****************************************************************");
-        $this->line("");
+        $this->line('****************************************************************');
+        $this->info('Sync Complete !!! ' . count($topups) . ' Topups Refunded.');
+        $this->line('****************************************************************');
+        $this->line('');
+
         return 0;
     }
 }

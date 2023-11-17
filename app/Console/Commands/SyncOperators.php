@@ -33,24 +33,24 @@ class SyncOperators extends Command
      */
     public function handle()
     {
-        $this->line("");
-        $this->line("****************************************************************");
-        $this->info("Started Sync of Operators with Reloadly Platform");
-        $this->line("****************************************************************");
-        try{
+        $this->line('');
+        $this->line('****************************************************************');
+        $this->info('Started Sync of Operators with Reloadly Platform');
+        $this->line('****************************************************************');
+        try {
             $page = 1;
             do {
-                $this->line("Fetching Operators Page : ".$page);
+                $this->line('Fetching Operators Page : ' . $page);
                 $response = User::admin()->getOperators($page);
-                $this->info("Fetch Success !!!");
+                $this->info('Fetch Success !!!');
                 $page++;
-                $this->line("Syncing with Database");
+                $this->line('Syncing with Database');
                 foreach ($response['content'] as $operator) {
                     if (isset($operator['operatorId'])) {
                         $country = Country::query()
                             ->where('iso', $operator['country']['isoName'])
                             ->first();
-                        if (!$country){
+                        if (!$country) {
                             $countryResponse = User::admin()->getCountries($operator['country']['isoName']);
                             $country = Country::query()->updateOrCreate(
                                 ['iso' => $countryResponse['isoName']],
@@ -60,7 +60,7 @@ class SyncOperators extends Command
                                     'currency_name' => $countryResponse['currencyName'],
                                     'currency_symbol' => $countryResponse['currencySymbol'],
                                     'flag' => $countryResponse['flag'],
-                                    'calling_codes' => $countryResponse['callingCodes']
+                                    'calling_codes' => $countryResponse['callingCodes'],
                                 ]
                             );
                         }
@@ -96,16 +96,16 @@ class SyncOperators extends Command
                                 'local_fixed_amounts_descriptions' => $operator['localFixedAmountsDescriptions'],
                                 'suggested_amounts' => $operator['suggestedAmounts'],
                                 'suggested_amounts_map' => $operator['suggestedAmountsMap'],
-                                'geographical_recharge_plans' => $operator['geographicalRechargePlans']
+                                'geographical_recharge_plans' => $operator['geographicalRechargePlans'],
                             ]
                         );
                     }
                 }
-                $this->info("Sync Completed For ".count($response['content'])." Operators");
+                $this->info('Sync Completed For ' . count($response['content']) . ' Operators');
             } while ($response['totalPages'] >= $page);
-            $this->line("****************************************************************");
-            $this->info("All Operators Synced !!! ");
-            $this->line("****************************************************************");
+            $this->line('****************************************************************');
+            $this->info('All Operators Synced !!! ');
+            $this->line('****************************************************************');
 
             $this->line("Re-Syncing Reseller User's Operator Rates");
             $role = UserRole::query()->where('name', 'RESELLER')->first();
@@ -121,14 +121,15 @@ class SyncOperators extends Command
                     $operator->pivot->save();
                 }
             }
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
 
-        $this->line("****************************************************************");
-        $this->info("All Done !!! ");
-        $this->line("****************************************************************");
-        $this->line("");
+        $this->line('****************************************************************');
+        $this->info('All Done !!! ');
+        $this->line('****************************************************************');
+        $this->line('');
+
         return 0;
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Traits\GoogleAuthenticator;
 use Illuminate\Http\Request;
+use App\Traits\GoogleAuthenticator;
 use Illuminate\Support\Facades\Hash;
 use OTIFSolutions\ACLMenu\Models\UserRole;
 
@@ -22,10 +22,10 @@ class CustomersController extends Controller
                 'type' => 'dashboard',
                 'url' => '/users/customers',
                 'icon' => 'feather icon-users',
-                'name' => 'Customers'
+                'name' => 'Customers',
             ],
-            'users' => User::where('user_role_id',UserRole::where('name','CUSTOMER')->first()['id'])->get(),
-            'manage_rates' => false
+            'users' => User::where('user_role_id', UserRole::where('name', 'CUSTOMER')->first()['id'])->get(),
+            'manage_rates' => false,
         ]);
     }
 
@@ -49,10 +49,10 @@ class CustomersController extends Controller
     {
         $request->validate([
            'name' => 'required',
-           'password' => 'required_with:confirm_password|same:confirm_password'
+           'password' => 'required_with:confirm_password|same:confirm_password',
         ]);
         $user = User::find($request['id']);
-        if ($user === null){
+        if ($user === null) {
             $user = new User();
             $request->validate([
                 'password' => 'required',
@@ -66,13 +66,15 @@ class CustomersController extends Controller
             $user['2fa_secret'] = GoogleAuthenticator::Make()->createSecret();
         }
         $user['name'] = $request['name'];
-        $user['user_role_id'] = UserRole::where('name','CUSTOMER')->first()['id'];
-        if (isset($request['password']) && !empty($request['password']))
+        $user['user_role_id'] = UserRole::where('name', 'CUSTOMER')->first()['id'];
+        if (isset($request['password']) && !empty($request['password'])) {
             $user['password'] = Hash::make($request['password']);
+        }
         $user->save();
+
         return response()->json([
             'location' => '/users/customers',
-            'message' => 'User Saved. Redirecting Now'
+            'message' => 'User Saved. Redirecting Now',
         ]);
     }
 
@@ -84,11 +86,11 @@ class CustomersController extends Controller
      */
     public function show($id)
     {
-        return view('dashboard.users.modal',[
+        return view('dashboard.users.modal', [
             'item' => User::find($id),
             'url' => '/users/customers',
             'name' => 'Customer',
-            'icon' => 'feather icon-users'
+            'icon' => 'feather icon-users',
         ]);
     }
 
@@ -124,8 +126,9 @@ class CustomersController extends Controller
     public function destroy($id)
     {
         $user = User::find($id);
-        if (!isset($user))
-            return response()->json(['errors' => [ 'error' => 'User not found.']],422);
+        if (!isset($user)) {
+            return response()->json(['errors' => ['error' => 'User not found.']], 422);
+        }
         /*$user->topups()->delete();
         $user->invoices()->delete();
         $user->numbers()->delete();

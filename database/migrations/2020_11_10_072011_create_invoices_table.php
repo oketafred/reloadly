@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class CreateInvoicesTable extends Migration
 {
@@ -21,9 +21,9 @@ class CreateInvoicesTable extends Migration
             $table->string('payment_intent_id')->nullable();
             $table->string('paypal_order_id')->nullable();
             $table->double('amount');
-            $table->enum('type',['AddFunds','Topup','NONE'])->default('NONE');
-            $table->enum('status',['PENDING','PAID','FAIL','CANCELLED','PROCESSING'])->default('PENDING');
-            $table->enum('payment_method',['STRIPE','PAYPAL','NONE'])->default('NONE');
+            $table->enum('type', ['AddFunds', 'Topup', 'NONE'])->default('NONE');
+            $table->enum('status', ['PENDING', 'PAID', 'FAIL', 'CANCELLED', 'PROCESSING'])->default('PENDING');
+            $table->enum('payment_method', ['STRIPE', 'PAYPAL', 'NONE'])->default('NONE');
             $table->json('payment_intent_response')->nullable();
             $table->json('paypal_response')->nullable();
             $table->timestamps();

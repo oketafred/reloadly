@@ -30,15 +30,15 @@ class SyncCountries extends Command
      */
     public function handle()
     {
-        $this->line("");
-        $this->line("****************************************************************");
-        $this->info("Started Sync of Countries with Reloadly Platform");
-        $this->line("****************************************************************");
-        $this->line("Fetching Countries list from Reloadly");
-        try{
+        $this->line('');
+        $this->line('****************************************************************');
+        $this->info('Started Sync of Countries with Reloadly Platform');
+        $this->line('****************************************************************');
+        $this->line('Fetching Countries list from Reloadly');
+        try {
             $countries = User::admin()->getCountries();
-            $this->info("Fetching Complete.");
-            $this->line("Syncing with database.");
+            $this->info('Fetching Complete.');
+            $this->line('Syncing with database.');
             foreach ($countries as $country) {
                 Country::query()->updateOrCreate(
                     ['iso' => $country['isoName']],
@@ -48,17 +48,18 @@ class SyncCountries extends Command
                         'currency_name' => $country['currencyName'],
                         'currency_symbol' => $country['currencySymbol'],
                         'flag' => $country['flag'],
-                        'calling_codes' => $country['callingCodes']
+                        'calling_codes' => $country['callingCodes'],
                     ]
                 );
             }
-            $this->line("****************************************************************");
-            $this->info("Sync Complete !!! ".count($countries)." Countries Synced.");
-        }catch (Exception $exception){
+            $this->line('****************************************************************');
+            $this->info('Sync Complete !!! ' . count($countries) . ' Countries Synced.');
+        } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
-        $this->line("****************************************************************");
-        $this->line("");
+        $this->line('****************************************************************');
+        $this->line('');
+
         return 0;
     }
 }

@@ -29,7 +29,7 @@ class ProcessFiles extends Command
      */
     public function handle()
     {
-        try{
+        try {
             $files = File::query()
                 ->where('status', 'PROCESSING')
                 ->get();
@@ -38,9 +38,10 @@ class ProcessFiles extends Command
                     $file->processNumbers();
                 }
             });
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
+
         return 0;
     }
 }

@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use OTIFSolutions\Laravel\Settings\Models\Setting;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class GiftCardProduct extends Model
 {
@@ -17,30 +16,34 @@ class GiftCardProduct extends Model
         'fixed_denominations_map' => 'array',
         'brand' => 'array',
         'country' => 'array',
-        'redeem_instruction' => 'array'
+        'redeem_instruction' => 'array',
     ];
     public $appends = ['amounts'];
 
-    public function country(){
-        return $this->belongsTo(Country::class,'country_id');
+    public function country()
+    {
+        return $this->belongsTo(Country::class, 'country_id');
     }
-    public function getAmountsAttribute(){
-        if (isset($this->pivot->discount))
+
+    public function getAmountsAttribute()
+    {
+        if (isset($this->pivot->discount)) {
             $discount = $this->pivot->discount;
-        else
+        } else {
             $discount = 0;
+        }
         $amounts = [];
-        if ($this['denomination_type'] === "FIXED"){
-            foreach ($this['fixed_denominations_map'] as $key => $denomonation)
-            {
+        if ($this['denomination_type'] === 'FIXED') {
+            foreach ($this['fixed_denominations_map'] as $key => $denomonation) {
                 $amounts[$key] = $denomonation + $this['sender_fee'];
                 $amounts[$key] *= (1 - ($discount / 100));
-                $amounts[$key] = round($amounts[$key],2);
+                $amounts[$key] = round($amounts[$key], 2);
             }
-        }else{
+        } else {
             $amounts[] = $this['min_recipient_denomination'];
             $amounts[] = $this['max_recipient_denomination'];
         }
+
         return $amounts;
     }
 }

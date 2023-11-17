@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddGeographicalDataToOperatorsTable extends Migration
 {
@@ -27,7 +27,7 @@ class AddGeographicalDataToOperatorsTable extends Migration
     public function down()
     {
         Schema::table('operators', function (Blueprint $table) {
-            $table->dropColumn(['supports_geographical_recharge_plans','geographical_recharge_plans']);
+            $table->dropColumn(['supports_geographical_recharge_plans', 'geographical_recharge_plans']);
         });
     }
 }

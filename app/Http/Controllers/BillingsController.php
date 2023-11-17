@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Invoice;
-use App\Models\StripePaymentMethod;
 use App\Models\System;
 use Illuminate\Http\Request;
+use App\Models\StripePaymentMethod;
 use Illuminate\Support\Facades\Auth;
 
 class BillingsController extends Controller
@@ -17,11 +16,11 @@ class BillingsController extends Controller
      */
     public function index()
     {
-        return view('dashboard.billings.home',[
+        return view('dashboard.billings.home', [
             'page' => [
-                'type' => 'dashboard'
+                'type' => 'dashboard',
             ],
-            'cards' => Auth::user()['stripe_payment_methods']
+            'cards' => Auth::user()['stripe_payment_methods'],
         ]);
     }
 
@@ -45,18 +44,22 @@ class BillingsController extends Controller
     {
         $user = Auth::user();
         System::updatePaymentMethods($user);
+
         return response()->json([
             'message' => 'Payment Methods Synced. Redirecting now.',
-            'location' => '/billings'
+            'location' => '/billings',
         ]);
     }
 
     public function show()
     {
         $intent = System::createSetupIntent(Auth::user());
-        if (!$intent) return;
-        return view('dashboard.stripe.add_card_modal',[
-            'intent' => $intent
+        if (!$intent) {
+            return;
+        }
+
+        return view('dashboard.stripe.add_card_modal', [
+            'intent' => $intent,
         ]);
     }
 
@@ -92,9 +95,9 @@ class BillingsController extends Controller
     public function destroy($id)
     {
         $card = StripePaymentMethod::find($id);
-        if ($card !== null && $card['user_id'] !== Auth::user()['id'])
-            return response()->json(['errors' => ['error' => 'Not Authorized to perform such action.']],422);
+        if ($card !== null && $card['user_id'] !== Auth::user()['id']) {
+            return response()->json(['errors' => ['error' => 'Not Authorized to perform such action.']], 422);
+        }
         System::removePaymentMethod($card);
     }
-
 }

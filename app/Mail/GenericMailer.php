@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
@@ -14,7 +13,7 @@ class GenericMailer extends Mailable
     /**
      * The Data to be passed to View.
      *
-     * @var  Array
+     * @var  array
      */
     public $data;
 
@@ -30,7 +29,7 @@ class GenericMailer extends Mailable
      *
      * @return void
      */
-    public function __construct($data,$viewName)
+    public function __construct($data, $viewName)
     {
         $this->data = $data;
         $this->view = $viewName;

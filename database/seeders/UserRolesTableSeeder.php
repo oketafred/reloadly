@@ -14,8 +14,8 @@ class UserRolesTableSeeder extends Seeder
      */
     public function run()
     {
-        UserRole::updateOrCreate(['id' => 1],['name' => 'ADMIN']);
-        UserRole::updateOrCreate(['id' => 2],['name' => 'RESELLER']);
-        UserRole::updateOrCreate(['id' => 3],['name' => 'CUSTOMER']);
+        UserRole::updateOrCreate(['id' => 1], ['name' => 'ADMIN']);
+        UserRole::updateOrCreate(['id' => 2], ['name' => 'RESELLER']);
+        UserRole::updateOrCreate(['id' => 3], ['name' => 'CUSTOMER']);
     }
 }

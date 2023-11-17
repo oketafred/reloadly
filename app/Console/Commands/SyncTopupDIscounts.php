@@ -31,24 +31,28 @@ class SyncTopupDIscounts extends Command
      */
     public function handle()
     {
-        $this->line("");
-        $this->line("****************************************************************");
-        $this->info("Started Sync of Topup Discounts");
-        $this->line("****************************************************************");
-        $this->line("Searching Database for Resellers.");
-        try{
+        $this->line('');
+        $this->line('****************************************************************');
+        $this->info('Started Sync of Topup Discounts');
+        $this->line('****************************************************************');
+        $this->line('Searching Database for Resellers.');
+        try {
             $resellers = User::query()
                 ->where('user_role_id', UserRole::where('name', 'RESELLER')->first()['id'])
                 ->get();
-            $this->info(count($resellers)." Reseller(s) Found.");
+            $this->info(count($resellers) . ' Reseller(s) Found.');
 
-            $this->line("Syncing with Topups for Discount.");
+            $this->line('Syncing with Topups for Discount.');
             foreach ($resellers as $reseller) {
-                $accountTransactions = $reseller->account_transactions()->where('topup_id', '!=', null)->where('type',
-                    'CREDIT')->pluck('topup_id')->toArray();
-                $topups = $reseller->topups()->where('status', 'SUCCESS')->whereNotIn('id',
-                    $accountTransactions)->get();
-                $this->info(count($topups)." Topup(s) Found for ".$reseller['name']);
+                $accountTransactions = $reseller->account_transactions()->where('topup_id', '!=', null)->where(
+                    'type',
+                    'CREDIT'
+                )->pluck('topup_id')->toArray();
+                $topups = $reseller->topups()->where('status', 'SUCCESS')->whereNotIn(
+                    'id',
+                    $accountTransactions
+                )->get();
+                $this->info(count($topups) . ' Topup(s) Found for ' . $reseller['name']);
                 foreach ($topups as $topup) {
                     if (isset($topup['invoice'], $topup['operator'])) {
                         $discountPercentage = 0;
@@ -66,19 +70,20 @@ class SyncTopupDIscounts extends Command
                                 'amount' => $discount,
                                 'currency' => $topup['invoice']['currency_code'],
                                 'type' => 'CREDIT',
-                                'description' => 'Commission Paid. Topup # '.$topup['id'].' @'.$discountPercentage.'%',
-                                'ending_balance' => $reseller['balance_value'] + $discount
+                                'description' => 'Commission Paid. Topup # ' . $topup['id'] . ' @' . $discountPercentage . '%',
+                                'ending_balance' => $reseller['balance_value'] + $discount,
                             ]);
                         }
                     }
                 }
             }
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
-        $this->line("****************************************************************");
-        $this->info("Reseller Topup Discounts Synced");
-        $this->line("****************************************************************");
+        $this->line('****************************************************************');
+        $this->info('Reseller Topup Discounts Synced');
+        $this->line('****************************************************************');
+
         return 0;
     }
 }
