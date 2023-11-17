@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use OTIFSolutions\CurlHandler\Curl;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use OTIFSolutions\Laravel\Settings\Models\Setting;
@@ -60,14 +60,14 @@ class Topup extends Model
 
     public function sendTopup($sendResponse = false)
     {
-        if (isset($this['operator']) && isset($this['operator']['country'])) {
+        if (isset($this['operator']['country'])) {
             $system = User::admin();
 
             if ($this['status'] === 'PENDING') {
-                $response = Curl::Make()->POST->url($system['reloadly_api_url'] . '/topups')->header([
-                    'Content-Type:application/json',
-                    'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
-                ])->body([
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . Setting::get('reloadly_api_token'),
+                ])->post($system['reloadly_api_url'] . '/topups', [
                     'recipientPhone' => [
                         'countryCode' => $this['operator']['country']['iso'],
                         'number' => $this['number'],
@@ -75,12 +75,12 @@ class Topup extends Model
                     'operatorId' => $this['operator']['rid'],
                     'amount' => $this['is_local'] ? $this['topup'] : $this['topup'] / $this['operator']['fx_rate'],
                     'useLocalAmount' => $this['is_local'] ? 'true' : 'false',
-                ])->execute();
+                ]);
             } elseif (isset($this['response']['transactionId'])) {
-                $response = Curl::Make()->GET->url($system['reloadly_api_url'] . '/topups/reports/transactions/' . $this['response']['transactionId'])->header([
-                    'Content-Type:application/json',
-                    'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
-                ])->execute();
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . Setting::get('reloadly_api_token'),
+                ])->get($system['reloadly_api_url'] . '/topups/reports/transactions/' . $this['response']['transactionId']);
             } else {
                 return null;
             }
@@ -91,24 +91,20 @@ class Topup extends Model
                 'response' => json_encode($response),
             ]);
             $this['response'] = $response;
-            if (isset($this['response']['transactionId']) && $this['response']['transactionId'] != null && $this['response']['transactionId'] != '') {
-                if (isset($this['response']['status'])) {
-                    switch ($this['response']['status']) {
-                        case 'SUCCESSFUL':
-                            $this['status'] = 'SUCCESS';
-                            if (isset($this['response']['pinDetail'])) {
-                                $this['pin'] = $this['response']['pinDetail'];
-                            }
-                            break;
-                        case 'PROCESSING':
-                            $this['status'] = 'PROCESSING';
-                            break;
-                        case 'REFUNDED':
-                            $this['status'] = 'FAIL';
-                            break;
-                    }
-                } else {
-                    $this['status'] = 'FAIL';
+            if (isset($this['response']['transactionId'], $this['response']['status']) && $this['response']['transactionId'] !== null && $this['response']['transactionId'] !== '') {
+                switch ($this['response']['status']) {
+                    case 'SUCCESSFUL':
+                        $this['status'] = 'SUCCESS';
+                        if (isset($this['response']['pinDetail'])) {
+                            $this['pin'] = $this['response']['pinDetail'];
+                        }
+                        break;
+                    case 'PROCESSING':
+                        $this['status'] = 'PROCESSING';
+                        break;
+                    case 'REFUNDED':
+                        $this['status'] = 'FAIL';
+                        break;
                 }
             } else {
                 $this['status'] = 'FAIL';
