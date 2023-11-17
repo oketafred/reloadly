@@ -40,9 +40,9 @@ class Operator extends Model
         return $this->hasMany(Topup::class);
     }
 
-   /* public function numbers(){
-        return $this->hasMany('App\MobileNumber');
-    }*/
+    /* public function numbers(){
+         return $this->hasMany('App\MobileNumber');
+     }*/
 
     public function promotions()
     {

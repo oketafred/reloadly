@@ -2,7 +2,9 @@
 
 namespace App\Traits;
 
+use App\Models\Log;
 use App\Models\Operator;
+use Illuminate\Support\Facades\Http;
 use OTIFSolutions\CurlHandler\Curl;
 use OTIFSolutions\Laravel\Settings\Models\Setting;
 
@@ -20,23 +22,22 @@ trait ReloadlySystem
 
     public function getToken()
     {
-
-        $response = Curl::Make()->POST->url('https://auth.reloadly.com/oauth/token')->header([
-            'Content-Type:application/json',
-        ])->body([
-            'client_id' => Setting::get('reloadly_api_key'),
-            'client_secret' => Setting::get('reloadly_api_secret'),
-            'grant_type' => 'client_credentials',
-            'audience' => $this['reloadly_api_url'],
-        ])->execute();
-
-        \App\Models\Log::create([
-            'task' => 'GET_TOKEN',
-            'params' => '',
-            'response' => $response,
+        $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post('https://auth.reloadly.com/oauth/token', [
+                'client_id' => Setting::get('reloadly_api_key'),
+                'client_secret' => Setting::get('reloadly_api_secret'),
+                'grant_type' => 'client_credentials',
+                'audience' => $this['reloadly_api_url'],
         ]);
 
-        return isset($response['access_token']) ? $response['access_token'] : null;
+        Log::query()->create([
+            'task' => 'GET_TOKEN',
+            'params' => '',
+            'response' => $response->json(),
+        ]);
+
+        return $response->json('access_token');
     }
 
     public function getCountries($iso = null)
@@ -47,7 +48,7 @@ trait ReloadlySystem
             'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
         ])->execute();
 
-        \App\Models\Log::create([
+        Log::create([
             'task' => 'GET_COUNTRIES',
             'params' => '',
             'response' => $response,
@@ -62,7 +63,7 @@ trait ReloadlySystem
             'Content-Type:application/json',
             'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
         ])->execute();
-        \App\Models\Log::create([
+        Log::create([
             'task' => 'GET_OPERATORS',
             'params' => '',
             'response' => $response,
@@ -77,7 +78,7 @@ trait ReloadlySystem
             'Content-Type:application/json',
             'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
         ])->execute();
-        \App\Models\Log::create([
+        Log::create([
             'task' => 'GET_OPERATORS_DISCOUNTS',
             'params' => '',
             'response' => $response,
@@ -86,33 +87,41 @@ trait ReloadlySystem
         return $response;
     }
 
-    public function getBalance()
+    public function getBalance(): string
     {
-        $response = Curl::Make()->GET->url($this['reloadly_api_url'] . '/accounts/balance')->header([
-            'Content-Type:application/json',
-            'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
-        ])->execute();
-        if (isset($response['currencyCode'])) {
-            Setting::set('reloadly_currency', $response['currencyCode'], 'STRING');
-            $this->save();
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . Setting::get('reloadly_api_token'),
+        ])->get($this['reloadly_api_url'] . '/accounts/balance');
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            if (isset($data['currencyCode'])) {
+                Setting::set('reloadly_currency', $data['currencyCode']);
+                $this->save();
+            }
+            return isset($data['balance'], $data['currencyCode']) ? $data['balance'] . ' ' . $data['currencyCode'] : '---';
         }
 
-        return isset($response['balance'], $response['currencyCode']) ? $response['balance'] . ' ' . $response['currencyCode'] : '---';
+        return '---';
     }
 
     public function autoDetectOperator($phone, $iso, $fileId)
     {
-        $response = Curl::Make()->GET->url($this['reloadly_api_url'] . "/operators/auto-detect/phone/$phone/country-code/" . $iso . '?&includeBundles=true')->header([
-            'Content-Type:application/json',
-            'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
-        ])->execute();
-        \App\Models\Log::create([
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . Setting::get('reloadly_api_token'),
+        ])->get($this['reloadly_api_url'] . "/operators/auto-detect/phone/$phone/country-code/" . $iso . '?&includeBundles=true');
+
+        Log::query()->create([
             'task' => 'AUTO_DETECT',
             'params' => ' FILE:' . $fileId,
-            'response' => $response,
+            'response' => $response->json(),
         ]);
 
-        return isset($response['operatorId']) ? Operator::where('rid', $response['operatorId'])->first() : null;
+        $data = $response->json();
+        return isset($data['operatorId']) ? Operator::query()->where('rid', $data['operatorId'])->first() : null;
     }
 
     public function getPromotions($page = 1)
@@ -121,7 +130,7 @@ trait ReloadlySystem
             'Content-Type:application/json',
             'Authorization: Bearer ' . Setting::get('reloadly_api_token'),
         ])->execute();
-        \App\Models\Log::create([
+        Log::create([
             'task' => 'GET_PROMOTIONS',
             'params' => '',
             'response' => $response,
