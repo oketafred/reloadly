@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e384262e98d7ef21baedfa4b448a0ce",
+    "content-hash": "f7039c3635ba331cb1874a594994bdad",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -3107,48 +3107,6 @@
                 "source": "https://github.com/otifsolutions/aclmenu/tree/1.0.10"
             },
             "time": "2021-07-29T12:20:57+00:00"
-        },
-        {
-            "name": "otifsolutions/curl-handler",
-            "version": "V1.0.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/otifsolutions/curl-handler.git",
-                "reference": "6325496adce3ca4c5ac0f8454c013abf4c7eac28"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/otifsolutions/curl-handler/zipball/6325496adce3ca4c5ac0f8454c013abf4c7eac28",
-                "reference": "6325496adce3ca4c5ac0f8454c013abf4c7eac28",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "ext-dom": "*",
-                "ext-json": "*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "OTIFSolutions\\CurlHandler\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "OTIF Solutions",
-                    "email": "contact@otif-solutions.com"
-                }
-            ],
-            "description": "This package provides a eaisy access to api data in the project by simply giving the method,url and parameters",
-            "support": {
-                "issues": "https://github.com/otifsolutions/curl-handler/issues",
-                "source": "https://github.com/otifsolutions/curl-handler/tree/V1.0.5"
-            },
-            "time": "2023-03-08T13:19:43+00:00"
         },
         {
             "name": "otifsolutions/laravel-forcessl",
