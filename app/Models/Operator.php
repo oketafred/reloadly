@@ -4,8 +4,12 @@ namespace App\Models;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use OTIFSolutions\Laravel\Settings\Models\Setting;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Operator extends Model
 {
@@ -25,17 +29,17 @@ class Operator extends Model
         'geographical_recharge_plans' => 'array',
     ];
 
-    public function country()
+    public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
     }
 
-    public function discount()
+    public function discount(): HasOne
     {
         return $this->hasOne(Discount::class);
     }
 
-    public function topups()
+    public function topups(): HasMany
     {
         return $this->hasMany(Topup::class);
     }
@@ -44,12 +48,12 @@ class Operator extends Model
          return $this->hasMany('App\MobileNumber');
      }*/
 
-    public function promotions()
+    public function promotions(): HasMany
     {
         return $this->hasMany(Promotion::class);
     }
 
-    public function resellers()
+    public function resellers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'reseller_rates', 'operator_id', 'user_id')->withPivot(['international_discount', 'local_discount']);
     }
@@ -57,9 +61,11 @@ class Operator extends Model
     public function getFxRateAttribute($fx)
     {
         $user = Auth::user();
-        if (isset($user) && ($user['user_role']['name'] == 'RESELLER')) {
+        if (isset($user) && ($user['user_role']['name'] === 'RESELLER')) {
             return $fx;
-        } elseif (Setting::get('customer_rate')) {
+        }
+
+        if (Setting::get('customer_rate')) {
             return $fx * (1 - (Setting::get('customer_rate') / 100));
         }
 
@@ -90,7 +96,7 @@ class Operator extends Model
         curl_close($ch);
         $response = json_decode($response);
 
-        return isset($response->fxRate) ? $response->fxRate : -1;
+        return $response->fxRate ?? -1;
     }
 
     public function getSelectAmountsAttribute()

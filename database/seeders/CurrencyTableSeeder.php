@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Currency;
 use Illuminate\Database\Seeder;
 
 class CurrencyTableSeeder extends Seeder
@@ -60,8 +61,9 @@ class CurrencyTableSeeder extends Seeder
             ['name' =>'Vietnamese dong', 'abbr' =>'VND', 'symbol' =>'₫'],
         ];
         foreach ($currencies as $currency) {
-
-            \App\Models\Currency::updateOrCreate(['name' => $currency['name'], 'abbr' => $currency['abbr'], 'symbol' => $currency['symbol']]);
+            Currency::query()->updateOrCreate([
+                'name' => $currency['name'], 'abbr' => $currency['abbr'], 'symbol' => $currency['symbol'],
+            ]);
         }
     }
 }

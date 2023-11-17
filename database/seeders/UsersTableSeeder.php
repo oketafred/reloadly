@@ -16,17 +16,16 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        if (User::find(1) === null) {
-            User::Create(
-                [
+        if (User::query()->find(1) === null) {
+            User::query()
+                ->create([
                     'id' => 1,
                     'name' => 'Administrator',
                     'email' => 'admin@system.com',
                     'password' => Hash::make('admin'),
                     'username' => 'administrator',
-                    'user_role_id' => UserRole::where('name', 'ADMIN')->first()['id'],
-                ]
-            );
+                    'user_role_id' => UserRole::query()->where('name', 'ADMIN')->first()['id'],
+                ]);
         }
     }
 }

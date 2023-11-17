@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Country extends Model
@@ -10,16 +11,23 @@ class Country extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
-    protected $casts = ['calling_codes' => 'array'];
 
-    protected $hidden = ['created_at', 'updated_at', 'calling_codes'];
+    protected $casts = [
+        'calling_codes' => 'array',
+    ];
 
-    public function operators()
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'calling_codes',
+    ];
+
+    public function operators(): HasMany
     {
         return $this->hasMany(Operator::class);
     }
 
-    public function gifts()
+    public function gifts(): HasMany
     {
         return $this->hasMany(GiftCardProduct::class, 'country_id');
     }

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
 
 class AddProcessingToTopupsTable extends Migration
@@ -11,7 +12,7 @@ class AddProcessingToTopupsTable extends Migration
      */
     public function up()
     {
-        \DB::statement("ALTER TABLE topups CHANGE COLUMN status status ENUM('PENDING','SUCCESS','FAIL','PENDING_PAYMENT', 'REFUNDED', 'PROCESSING') NOT NULL DEFAULT 'PENDING_PAYMENT'");
+        DB::statement("ALTER TABLE topups CHANGE COLUMN status status ENUM('PENDING','SUCCESS','FAIL','PENDING_PAYMENT', 'REFUNDED', 'PROCESSING') NOT NULL DEFAULT 'PENDING_PAYMENT'");
     }
 
     /**
@@ -21,6 +22,6 @@ class AddProcessingToTopupsTable extends Migration
      */
     public function down()
     {
-        \DB::statement("ALTER TABLE topups CHANGE COLUMN status status ENUM('PENDING','SUCCESS','FAIL','PENDING_PAYMENT', 'REFUNDED') NOT NULL DEFAULT 'PENDING_PAYMENT'");
+        DB::statement("ALTER TABLE topups CHANGE COLUMN status status ENUM('PENDING','SUCCESS','FAIL','PENDING_PAYMENT', 'REFUNDED') NOT NULL DEFAULT 'PENDING_PAYMENT'");
     }
 }

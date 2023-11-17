@@ -13,7 +13,7 @@ use OTIFSolutions\Laravel\Settings\Models\Setting;
 
 trait StripeSystem
 {
-    public static function isStripeEnabled()
+    public static function isStripeEnabled(): bool
     {
         return @Setting::get('stripe_publishable_key') && @Setting::get('stripe_secret_key');
     }
@@ -27,7 +27,7 @@ trait StripeSystem
             \Stripe\Stripe::setApiKey(Setting::get('stripe_secret_key'));
             $customers = \Stripe\Customer::all(['email' => $user['email']]);
             $customer = null;
-            if (count($customers->data) == 0) {
+            if (count($customers->data) === 0) {
                 $customer = \Stripe\Customer::create([
                     'email' => $user['email'],
                     'name' => $user['name'],
@@ -58,7 +58,7 @@ trait StripeSystem
         }
         try {
             \Stripe\Stripe::setApiKey(Setting::get('stripe_secret_key'));
-            if ($invoice['payment_intent_id'] == null) {
+            if ($invoice['payment_intent_id'] === null) {
                 $multiplier = 100;
                 switch (strtolower($invoice['currency_code'])) {
                     case 'mga':
@@ -93,11 +93,11 @@ trait StripeSystem
                 $intent = \Stripe\PaymentIntent::retrieve($invoice['payment_intent_id']);
             }
             $invoice['payment_intent_response'] = $intent;
-            if (isset($invoice['payment_intent_response']['status']) && $invoice['payment_intent_response']['status'] == 'succeeded') {
+            if (isset($invoice['payment_intent_response']['status']) && $invoice['payment_intent_response']['status'] === 'succeeded') {
                 $invoice['payment_method'] = 'STRIPE';
                 $invoice['status'] = 'PAID';
-                if ($invoice['type'] == 'AddFunds') {
-                    AccountTransaction::firstOrCreate(['invoice_id' => $invoice['id']], [
+                if ($invoice['type'] === 'AddFunds') {
+                    AccountTransaction::query()->firstOrCreate(['invoice_id' => $invoice['id']], [
                         'user_id' => $invoice['user_id'],
                         'invoice_id' => $invoice['id'],
                         'amount' => $invoice['amount'],
@@ -107,9 +107,9 @@ trait StripeSystem
                         'response' => $invoice['payment_intent_response'],
                         'ending_balance' => @$invoice['user']['balance_value'] + $invoice['amount'],
                     ]);
-                } elseif ($invoice['type'] == 'Topup') {
+                } elseif ($invoice['type'] === 'Topup') {
                     $ids = $invoice->topups()->pluck('id');
-                    Topup::whereIn('id', $ids)->where('status', 'PENDING_PAYMENT')->update([
+                    Topup::query()->whereIn('id', $ids)->where('status', 'PENDING_PAYMENT')->update([
                         'status' => 'PENDING',
                     ]);
                 }
@@ -131,7 +131,6 @@ trait StripeSystem
 
     public static function updatePaymentMethods(User $user)
     {
-
         if (!StripeSystem::isStripeEnabled()) {
             return false;
         }
@@ -142,7 +141,7 @@ trait StripeSystem
             \Stripe\Stripe::setApiKey(Setting::get('stripe_secret_key'));
             $cards = \Stripe\PaymentMethod::all(['customer' => $user['stripe_id'], 'type' => 'card']);
             foreach ($cards->data as $card) {
-                StripePaymentMethod::updateOrCreate(['stripe_id' => $card->id], [
+                StripePaymentMethod::query()->updateOrCreate(['stripe_id' => $card->id], [
                     'user_id' => $user['id'],
                     'stripe_id' => $card->id,
                     'stripe_customer_id' => $user['stripe_id'],
@@ -162,7 +161,6 @@ trait StripeSystem
 
     public static function updateAccountEntries(User $user)
     {
-
         if (!StripeSystem::isStripeEnabled()) {
             return false;
         }
@@ -200,7 +198,6 @@ trait StripeSystem
 
     public static function removePaymentMethod(StripePaymentMethod $method)
     {
-
         if (!StripeSystem::isStripeEnabled() || $method['stripe_id'] === null) {
             return false;
         }
@@ -217,7 +214,6 @@ trait StripeSystem
 
     public static function createSetupIntent(User $user)
     {
-
         if (!StripeSystem::isStripeEnabled()) {
             return false;
         }

@@ -16,18 +16,18 @@ class DefaultUserPermissionsSync extends Seeder
     public function run()
     {
         //ADMIN PERMISSIONS
-        $userRole = UserRole::where(['name' => 'ADMIN'])->first();
-        $permissions = Permission::whereIn('menu_item_id', $userRole->menu_items()->pluck('id'))->pluck('id');
+        $userRole = UserRole::query()->where(['name' => 'ADMIN'])->first();
+        $permissions = Permission::query()->whereIn('menu_item_id', $userRole->menu_items()->pluck('id'))->pluck('id');
         $userRole->permissions()->sync($permissions);
 
         //RESELLER PERMISSIONS
-        $userRole = UserRole::where(['name' => 'RESELLER'])->first();
-        $permissions = Permission::whereIn('menu_item_id', $userRole->menu_items()->pluck('id'))->pluck('id');
+        $userRole = UserRole::query()->where(['name' => 'RESELLER'])->first();
+        $permissions = Permission::query()->whereIn('menu_item_id', $userRole->menu_items()->pluck('id'))->pluck('id');
         $userRole->permissions()->sync($permissions);
 
         //CUSTOMER PERMISSIONS
-        $userRole = UserRole::where(['name' => 'CUSTOMER'])->first();
-        $permissions = Permission::whereIn('menu_item_id', $userRole->menu_items()->pluck('id'))->pluck('id');
+        $userRole = UserRole::query()->where(['name' => 'CUSTOMER'])->first();
+        $permissions = Permission::query()->whereIn('menu_item_id', $userRole->menu_items()->pluck('id'))->pluck('id');
         $userRole->permissions()->sync($permissions);
     }
 }

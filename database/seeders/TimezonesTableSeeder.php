@@ -17,7 +17,7 @@ class TimezonesTableSeeder extends Seeder
         $timezones = json_decode($this->getRawJson());
         $i = 1;
         foreach ($timezones as $timezone) {
-            Timezone::updateOrCreate(['id' => $i], [
+            Timezone::query()->updateOrCreate(['id' => $i], [
                 'name' => $timezone->text,
                 'abbr' => $timezone->abbr,
                 'offset' => $timezone->offset,

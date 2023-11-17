@@ -16,7 +16,7 @@ use PayPalCheckoutSdk\Payments\CapturesRefundRequest;
 
 trait PaypalSystem
 {
-    public static function isPaypalSupported($invoice)
+    public static function isPaypalSupported($invoice): bool
     {
         return in_array(
             strtoupper($invoice['currency_code']),
@@ -26,8 +26,7 @@ trait PaypalSystem
 
     public static function getPaypalClient()
     {
-        $environment = null;
-        if (@Setting::get('paypal_api_mode') == 'TEST') {
+        if (@Setting::get('paypal_api_mode') === 'TEST') {
             $environment = new SandboxEnvironment(@Setting::get('paypal_client_id'), @Setting::get('paypal_secret'));
         } else {
             $environment = new ProductionEnvironment(@Setting::get('paypal_client_id'), @Setting::get('paypal_secret'));
@@ -70,8 +69,8 @@ trait PaypalSystem
             if ($invoice['paypal_response']['status'] === 'COMPLETED') {
                 $invoice['payment_method'] = 'PAYPAL';
                 $invoice['status'] = 'PAID';
-                if ($invoice['type'] == 'AddFunds') {
-                    AccountTransaction::firstOrCreate(['invoice_id' => $invoice['id']], [
+                if ($invoice['type'] === 'AddFunds') {
+                    AccountTransaction::query()->firstOrCreate(['invoice_id' => $invoice['id']], [
                         'user_id' => $invoice['user_id'],
                         'invoice_id' => $invoice['id'],
                         'amount' => $invoice['amount'],
@@ -81,9 +80,9 @@ trait PaypalSystem
                         'response' => $invoice['paypal_response'],
                         'ending_balance' => @$invoice['user']['balance_value'] + $invoice['amount'],
                     ]);
-                } elseif ($invoice['type'] == 'Topup') {
+                } elseif ($invoice['type'] === 'Topup') {
                     $ids = $invoice->topups()->pluck('id');
-                    Topup::whereIn('id', $ids)->where('status', 'PENDING_PAYMENT')->update([
+                    Topup::query()->whereIn('id', $ids)->where('status', 'PENDING_PAYMENT')->update([
                         'status' => 'PENDING',
                     ]);
                 }
@@ -95,8 +94,8 @@ trait PaypalSystem
                 if ($invoice['paypal_response']['status'] === 'COMPLETED') {
                     $invoice['payment_method'] = 'PAYPAL';
                     $invoice['status'] = 'PAID';
-                    if ($invoice['type'] == 'AddFunds') {
-                        AccountTransaction::firstOrCreate(['invoice_id' => $invoice['id']], [
+                    if ($invoice['type'] === 'AddFunds') {
+                        AccountTransaction::query()->firstOrCreate(['invoice_id' => $invoice['id']], [
                             'user_id' => $invoice['user_id'],
                             'invoice_id' => $invoice['id'],
                             'amount' => $invoice['amount'],
@@ -106,9 +105,9 @@ trait PaypalSystem
                             'response' => $invoice['paypal_response'],
                             'ending_balance' => @$invoice['user']['balance_value'] + $invoice['amount'],
                         ]);
-                    } elseif ($invoice['type'] == 'Topup') {
+                    } elseif ($invoice['type'] === 'Topup') {
                         $ids = $invoice->topups()->pluck('id');
-                        Topup::whereIn('id', $ids)->where('status', 'PENDING_PAYMENT')->update([
+                        Topup::query()->whereIn('id', $ids)->where('status', 'PENDING_PAYMENT')->update([
                             'status' => 'PENDING',
                         ]);
                     }
@@ -133,15 +132,13 @@ trait PaypalSystem
             } catch (\Exception $ex) {
                 return false;
             }
-            if ($invoice['status'] === 'PAID') {
-                if (isset($invoice['paypal_response']['purchase_units'])) {
-                    foreach ($invoice['paypal_response']['purchase_units'] as $purchaseUnit) {
-                        if (isset($purchaseUnit['payments']['captures'])) {
-                            foreach ($purchaseUnit['payments']['captures'] as $capture) {
-                                if ($capture['status'] === 'COMPLETED') {
-                                    $request = new CapturesRefundRequest($capture['id']);
-                                    $response = $client->execute($request);
-                                }
+            if (($invoice['status'] === 'PAID') && isset($invoice['paypal_response']['purchase_units'])) {
+                foreach ($invoice['paypal_response']['purchase_units'] as $purchaseUnit) {
+                    if (isset($purchaseUnit['payments']['captures'])) {
+                        foreach ($purchaseUnit['payments']['captures'] as $capture) {
+                            if ($capture['status'] === 'COMPLETED') {
+                                $request = new CapturesRefundRequest($capture['id']);
+                                $client->execute($request);
                             }
                         }
                     }

@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Invoice extends Model
@@ -16,22 +19,22 @@ class Invoice extends Model
         'paypal_response' => 'array',
     ];
 
-    public function topups()
+    public function topups(): HasMany
     {
         return $this->hasMany(Topup::class);
     }
 
-    public function topup()
+    public function topup(): HasOne
     {
         return $this->hasOne(Topup::class, 'invoice_id');
     }
 
-    public function gift_card()
+    public function gift_card(): HasOne
     {
         return $this->hasOne(GiftCardTransaction::class, 'invoice_id');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

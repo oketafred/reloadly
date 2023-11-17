@@ -4,7 +4,9 @@ namespace App\Models;
 
 use OTIFSolutions\CurlHandler\Curl;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use OTIFSolutions\Laravel\Settings\Models\Setting;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Topup extends Model
@@ -18,22 +20,22 @@ class Topup extends Model
     ];
     protected $appends = ['message'];
 
-    public function operator()
+    public function operator(): BelongsTo
     {
         return $this->belongsTo(Operator::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function invoice()
+    public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
     }
 
-    public function file_entry()
+    public function file_entry(): BelongsTo
     {
         return $this->belongsTo(FileEntry::class);
     }
@@ -46,11 +48,11 @@ class Topup extends Model
             case 'SUCCESS':
                 return 'Transaction completed successfully.';
             case 'FAIL':
-                return isset($this['response']['message']) ? $this['response']['message'] : 'Transaction Failed. No response';
+                return $this['response']['message'] ?? 'Transaction Failed. No response';
             case 'PENDING_PAYMENT':
                 return 'Transaction is pending payment';
             case 'REFUNDED':
-                return 'Topup has been refunded. It failed due to Error : ' . (isset($this['response']['message']) ? $this['response']['message'] : 'Unknown');
+                return 'Topup has been refunded. It failed due to Error : ' . ($this['response']['message'] ?? 'Unknown');
             default:
                 return 'Error : Unknown Status found.';
         }
@@ -118,7 +120,7 @@ class Topup extends Model
         }
     }
 
-    public function discount_transaction()
+    public function discount_transaction(): HasOne
     {
         return $this->hasOne(AccountTransaction::class, 'topup_id');
     }

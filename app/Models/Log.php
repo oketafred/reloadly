@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Log extends Model
 {
     use HasFactory;
+
     protected $guarded = ['id'];
-    protected $casts = ['response' => 'array'];
+
+    protected $casts = [
+        'response' => 'array',
+    ];
 }
